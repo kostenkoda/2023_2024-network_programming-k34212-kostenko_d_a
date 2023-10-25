@@ -23,8 +23,9 @@ Date of finished: ?
 
 1. Схема связи
    
-В результате лабораторной работы будет получена схема связи следующего вида.
+В результате выполнения лабораторной работы будет получена схема связи следующего вида.
 
+![](https://github.com/kostenkoda/2023_2024-network_programming-k34212-kostenko_d_a/blob/main/lab1/lab1-pics/diagram.png)
 
 2. Развертывание виртуальной машины на платформе Yandex Compute Cloud
 
@@ -84,10 +85,10 @@ wg genkey | sudo tee /etc/wireguard/wg0-client-private.key | wg pubkey | sudo te
 Address = 10.2.0.1/24
 SaveConfig = true
 ListenPort = 51820
-PrivateKey = [публичный ключ сервера]
+PrivateKey = [приватный ключ сервера]
 
 [Peer]
-PublicKey = [приватный ключ клиента]
+PublicKey = [публичный ключ клиента]
 AllowedIPs = 10.2.0.2/32
 ```
 
@@ -114,9 +115,9 @@ sudo systemctl start wg-quick@wg0
 
 ![](https://github.com/kostenkoda/2023_2024-network_programming-k34212-kostenko_d_a/blob/main/lab1/lab1-pics/server_check.png)
 
-5. Настройка Wireguard клиента на RouterOS
+5. Настройка WireGuard клиента на RouterOS
 
-Для настройки Wireguard клиента на CHR был добавлен интерфейс wireguard1, назначен его ip-адрес, настроен пир и добавлено правило в firewall (разрешен трафик WireGuard). 
+Для настройки WireGuard клиента на CHR был добавлен интерфейс wireguard1, назначен его ip-адрес, настроен пир и добавлено правило в firewall (разрешен трафик WireGuard). 
 
 ```
 /interface wireguard add listen-port=51820 mtu=1420 name=wireguard1
