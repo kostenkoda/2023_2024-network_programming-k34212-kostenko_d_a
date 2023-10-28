@@ -15,7 +15,7 @@ Lab: Lab1
 
 Date of create: 23.10.2023
 
-Date of finished: ?
+Date of finished: 26.10.2023
 
 **Цель работы:** развертывание виртуальной машины на базе платформы Yandex Compute Cloud с установленной системой контроля конфигураций Ansible и установка CHR в VirtualBox.
 
