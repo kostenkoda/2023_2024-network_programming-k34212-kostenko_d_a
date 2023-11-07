@@ -27,7 +27,7 @@ Date of finished: ?
 
 ![](https://github.com/kostenkoda/2023_2024-network_programming-k34212-kostenko_d_a/blob/main/lab2/lab2-pics/CHRs.png)
 
-3. Настройка VPN сервера для добавления 2-ого VPN клиента
+2. Настройка VPN сервера для добавления 2-ого VPN клиента
 
 Для настройки второго VPN клиента на VPN (WireGuard) сервере - виртуальной машине Ubuntu 22.04 на платформе Yandex Compute Cloud - была сгенерирована дополнительная пара ключей.
 
@@ -174,10 +174,10 @@ ansible -m ping all
 Запускаем playbook.
 
 ```
-ansible-playbook -i /etc/ansible/hosts lab2_playbook.yml
+ansible-playbook -i /etc/ansible/hosts lab2_playbook.yaml
 ```
 
-После запускаться последовательно выводится информация о выполнении каждого задания.
+После запуска последовательно выводится информация о выполнении каждого таска.
 
 ![](https://github.com/kostenkoda/2023_2024-network_programming-k34212-kostenko_d_a/blob/main/lab2/lab2-pics/playbook_playing.png)
 
@@ -232,5 +232,11 @@ CHR2:
 ![](https://github.com/kostenkoda/2023_2024-network_programming-k34212-kostenko_d_a/blob/main/lab2/lab2-pics/ping_to_CHR1.png)
 
 CHR так же пингуются через Lo.
+
+7. Схема связи
+
+В результате выполнения лабораторной работы была получена следующая схема связи:
+
+![](https://github.com/kostenkoda/2023_2024-network_programming-k34212-kostenko_d_a/blob/main/lab2/lab2-pics/diagram.png)
 
 **Вывод:** в ходе выполнения лабораторной работы были получены навыки по сборке файла Inventory, настройке нескольких сетевых устройств и сбора информацию о них с помощью Ansible.
