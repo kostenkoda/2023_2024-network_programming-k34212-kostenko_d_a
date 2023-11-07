@@ -84,7 +84,153 @@ systemctl restart wg-quick@wg0
 
 5. Настройка 2-х CHR с помощью Ansible
 
-...
+Во-первых, создаем inventory - файл /etc/ansible/hosts, который содержит информацию о хостах CHR1 и CHR2, которые необходимо настроить с помощью Ansible, и общие переменные.
 
+```
+[CHRs]
+CHR1 ansible_host=10.2.0.2 router_id=1.1.1.1
+CHR2 ansible_host=10.2.0.3 router_id=2.2.2.2
 
-**Вывод:**
+[CHRs:vars]
+ansible_user=admin
+ansible_password=admin
+ansible_connection=network_cli
+ansible_network_os=routeros
+```
+
+Проверим inventory.
+
+```
+ansible-inventory --list -y
+```
+
+![](https://github.com/kostenkoda/2023_2024-network_programming-k34212-kostenko_d_a/blob/main/lab2/lab2-pics/hosts.png)
+
+Во-вторых, настраиваем ssh-соединения с Ubuntu на CHR1 и CHR2 для работы Ansible. Для этого создаем пару ключей и копируем публичный ключ на CHR1 и CHR2.
+```
+ssh-keygen
+ssh admin@10.2.0.2 "/file print file=mykey; file set mykey contents=\"`cat ~/.ssh/id_rsa.pub`\";/user ssh-keys import public-key-file=mykey.txt;/ip ssh set always-allow-password-login=yes"
+ssh admin@10.2.0.3 "/file print file=mykey; file set mykey contents=\"`cat ~/.ssh/id_rsa.pub`\";/user ssh-keys import public-key-file=mykey.txt;/ip ssh set always-allow-password-login=yes"
+
+```
+
+Проверим доступность хостов CHR1 и CHR2.
+
+```
+ansible -m ping all
+```
+
+![](https://github.com/kostenkoda/2023_2024-network_programming-k34212-kostenko_d_a/blob/main/lab2/lab2-pics/check_hosts.png)
+
+В-третьих, создаем playbook - yaml файл, который будет содержать инструкции для выполнения задач на CHR1 и CHR2.
+
+На 2-х CHR необходимо настроить логин/пароль, NTP Client, OSPF с указанием Router ID и собрать данные по OSPF топологии и полный конфиг устройств.
+
+Полученный playbook:
+
+```
+- name: "playbook for lab2"
+  hosts: CHRs
+
+  tasks:
+    - name: Set User&Password
+      community.routeros.command:
+        commands: "user add name=user1 password=user1 group=full"
+
+  tasks:
+    - name: Set NTP
+      community.routeros.command:
+        commands: "system ntp client set enabled=yes servers=8.8.8.8"
+
+    - name: Set OSPF
+      community.routeros.command:
+        commands:
+          - /interface bridge add name=Lo
+          - /ip address add address="{{ router_id }}"/32 interface=Lo
+          - /routing ospf instance add name=v2inst version=2 router-id="{{ router_id }}"
+          - /routing ospf area add name=backbone_v2 area-id=0.0.0.0 instance=v2inst
+          - /routing ospf interface-template add network=0.0.0.0/0 area=backbone_v2
+
+    - name: Collect OSPF information
+      community.routeros.command:
+        commands: "/routing ospf neighbor print"
+      register: ospf_info
+
+    - name: Collect config
+      community.routeros.facts:
+        gather_subset:
+          - config
+      register: config_info
+
+    - name: Get OSPF information
+      debug:
+        msg: "{{ ospf_info }}"
+
+    - name: Get config
+      debug:
+        msg: "{{ config_info }}"
+```
+
+Запускаем playbook.
+
+```
+ansible-playbook -i /etc/ansible/hosts lab2_playbook.yml
+```
+
+После запускаться последовательно выводится информация о выполнении каждого задания.
+
+![](https://github.com/kostenkoda/2023_2024-network_programming-k34212-kostenko_d_a/blob/main/lab2/lab2-pics/playbook_playing.png)
+
+Далее выводится информация по OSPF топологии и полный конфиг устройств, в конце - общая сводка.
+
+![](https://github.com/kostenkoda/2023_2024-network_programming-k34212-kostenko_d_a/blob/main/lab2/lab2-pics/playing_res.png)
+
+6. Проверка настроек на CHR и их связности
+
+После запуска и работы playbook на 2-х CHR добавились настройки.
+
+CHR1:
+
+```
+/interface bridge add name=Lo
+/routing ospf instance add disabled=no name=v2inst router-id=1.1.1.1
+/routing ospf area add disabled=no instance=v2inst name=backbone_v2
+/routing ospf interface-template add network=0.0.0.0/0 area=backbone_v2
+/ip address add address=1.1.1.1 interface=Lo network=1.1.1.1
+/routing ospf interface-template add area=backbone_v2 disabled=no network=0.0.0.0/0
+```
+
+CHR2:
+
+```
+/interface bridge add name=Lo
+/routing ospf instance add disabled=no name=v2inst router-id=2.2.2.2
+/routing ospf area add disabled=no instance=v2inst name=backbone_v2
+/routing ospf interface-template add network=0.0.0.0/0 area=backbone_v2
+/ip address add address=2.2.2.2 interface=Lo network=2.2.2.2
+/routing ospf interface-template add area=backbone_v2 disabled=no network=0.0.0.0/0
+```
+
+Проверим работу OSPF на обоих CHR.
+
+CHR1:
+
+![](https://github.com/kostenkoda/2023_2024-network_programming-k34212-kostenko_d_a/blob/main/lab2/lab2-pics/ospf_neighbor_on_CHR1.png)
+
+CHR2:
+
+![](https://github.com/kostenkoda/2023_2024-network_programming-k34212-kostenko_d_a/blob/main/lab2/lab2-pics/ospf_neighbor_on_CHR2.png)
+
+Проверим связность между CHR.
+
+Пинг CHR2 с CHR1:
+
+![](https://github.com/kostenkoda/2023_2024-network_programming-k34212-kostenko_d_a/blob/main/lab2/lab2-pics/ping_to_CHR2.png)
+
+Пинг CHR1 с CHR2:
+
+![](https://github.com/kostenkoda/2023_2024-network_programming-k34212-kostenko_d_a/blob/main/lab2/lab2-pics/ping_to_CHR1.png)
+
+CHR так же пингуются через Lo.
+
+**Вывод:** в ходе выполнения лабораторной работы были получены навыки по сборке файла Inventory, настройке нескольких сетевых устройств и сбора информацию о них с помощью Ansible.
