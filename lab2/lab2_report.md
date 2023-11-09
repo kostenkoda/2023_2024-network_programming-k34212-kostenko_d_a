@@ -198,6 +198,7 @@ CHR1:
 /routing ospf interface-template add network=0.0.0.0/0 area=backbone_v2
 /ip address add address=1.1.1.1 interface=Lo network=1.1.1.1
 /routing ospf interface-template add area=backbone_v2 disabled=no network=0.0.0.0/0
+/system ntp client server add address=8.8.8.8
 ```
 
 CHR2:
@@ -209,6 +210,7 @@ CHR2:
 /routing ospf interface-template add network=0.0.0.0/0 area=backbone_v2
 /ip address add address=2.2.2.2 interface=Lo network=2.2.2.2
 /routing ospf interface-template add area=backbone_v2 disabled=no network=0.0.0.0/0
+/system ntp client server add address=8.8.8.8
 ```
 
 Проверим работу OSPF на обоих CHR.
