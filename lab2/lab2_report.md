@@ -15,7 +15,7 @@ Lab: Lab2
 
 Date of create: 03.11.2023
 
-Date of finished: ?
+Date of finished: 09.11.2023
 
 **Цель работы:** c помощью Ansible настроить несколько сетевых устройств и собрать информацию о них, правильно собрать файл Inventory.
 
