@@ -17,13 +17,14 @@ Date of create: 29.11.2023
 
 Date of finished: ?
 
-**Цель работы:** с помощью Ansible и Netbox собрать всю возможную информацию об устройствах и сохранить их в отдельном файле.
+## Цель работы: 
+с помощью Ansible и Netbox собрать всю возможную информацию об устройствах и сохранить их в отдельном файле.
 
-**Ход работы:**
+## Ход работы:
 
-1. Поднятие Netbox на VM
+### 1. Поднятие Netbox на VM
 
-На раннее созданной виртуальной машине на платформе Yandex Compute Cloud поднимем Netbox.
+На ранее созданной виртуальной машине на платформе Yandex Compute Cloud поднимем Netbox.
 
 Для этого необходимо выполнить следующие шаги:
 
@@ -178,9 +179,58 @@ sudo ln -s /etc/nginx/sites-available/netbox /etc/nginx/sites-enabled/netbox
 ![](https://github.com/kostenkoda/2023_2024-network_programming-k34212-kostenko_d_a/blob/main/lab3/lab3-pics/nb_webpage.png)
 
 
-2. Заполнение информации о CHR в NetBox
+### 2. Заполнение информации о CHR в NetBox
 
-3. 
+Для добавления устройств были добавлены сайт (физическое расположение устройства), роль, производитель и тип устройств.
+
+Далее была заполнена информация о двух CHR, добавлены их интерфейсы и ip-адреса. Для каждого CHR были заранее добавлены по еще одному интерфейсу и ip-адресу для выполнения 5 пункта работы.
+
+![](https://github.com/kostenkoda/2023_2024-network_programming-k34212-kostenko_d_a/blob/main/lab3/lab3-pics/nb_devices.png)
+
+![](https://github.com/kostenkoda/2023_2024-network_programming-k34212-kostenko_d_a/blob/main/lab3/lab3-pics/nb_interfaces.png)
+
+![](https://github.com/kostenkoda/2023_2024-network_programming-k34212-kostenko_d_a/blob/main/lab3/lab3-pics/nb_ips.png)
+
+### 3. Сбор данных из NetBox
+
+Используя Ansible и модуль netbox.netbox.nb_inventory, соберем данные об устройствах из Netbox.
+
+Создадим файл netbox_inventory.yml.
+
+```
+---
+plugin: netbox.netbox.nb_inventory
+api_endpoint: https://158.160.48.189
+token: токен
+validate_certs: False
+config_context: False
+group_by:
+  - device_roles
+interfaces: 'True'
+```
+
+Токен создается в NetBox.
+
+![](https://github.com/kostenkoda/2023_2024-network_programming-k34212-kostenko_d_a/blob/main/lab3/lab3-pics/nb_token.png)
+
+Всю информацию сохраняем в файл nb_inventory.yml.
+
+```
+ansible-inventory -v --list -i netbox_inventory.yml > nb_inventory.yml
+```
+
+В файле nb_inventory.yml теперь находится вся полученная из NetBox информация об устройствах. Этот файл будет использоваться в качестве inventory-файла. В этот файл были также перенесены переменные для подключения к роутерам. Полное содержание файла можно просмотреть [здесь](https://github.com/kostenkoda/2023_2024-network_programming-k34212-kostenko_d_a/blob/main/lab3/nb_inventory.yml).
+
+![](https://github.com/kostenkoda/2023_2024-network_programming-k34212-kostenko_d_a/blob/main/lab3/lab3-pics/nb_inventory_part.png)
+
+
+
+
+
+
+
+
+
 
 4.
 
