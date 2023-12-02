@@ -174,7 +174,7 @@ sudo rm /etc/nginx/sites-enabled/default
 sudo ln -s /etc/nginx/sites-available/netbox /etc/nginx/sites-enabled/netbox
 ```
 
-Теперь NetBox доступен по адресу https://158.160.48.189/ (белый ip-адрес виртуальной машины), пользователь admin.
+Теперь NetBox доступен по адресу https://белый_ip-адрес_виртуальной_машины/, пользователь admin.
 
 ![](https://github.com/kostenkoda/2023_2024-network_programming-k34212-kostenko_d_a/blob/main/lab3/lab3-pics/nb_webpage.png)
 
@@ -223,17 +223,71 @@ ansible-inventory -v --list -i netbox_inventory.yml > nb_inventory.yml
 
 ![](https://github.com/kostenkoda/2023_2024-network_programming-k34212-kostenko_d_a/blob/main/lab3/lab3-pics/nb_inventory_part.png)
 
+### 4. Настройка 2 CHR на основе данных из Netbox
 
+Был написан playbook для изменения имени устройств и добавления IP-адреса на основе inventory-файла nb_inventory.yml.
 
+```
+- name: Routers Configuration
+  hosts: device_roles_router
+  tasks:
+    - name: Set Devices Name
+      community.routeros.command:
+        commands:
+          - /system identity set name="{{interfaces[0].device.name}}"
+    - name: Set additional IP
+      community.routeros.command:
+        commands:
+        - /interface bridge add name="{{interfaces[1].display}}"
+        - /ip address add address="{{interfaces[1].ip_addresses[0].address}}" interface="{{interfaces[1].display}}"
+```
 
+Выполняем playbook.
 
+![](https://github.com/kostenkoda/2023_2024-network_programming-k34212-kostenko_d_a/blob/main/lab3/lab3-pics/playbook1.png)
 
+Проверяем изменения на 2 CHR. На рисунке можно увидеть, что изменились имена устройств и добавлен интерфейс с ip-адресом. Наверху также можно увидеть успешные пинги до виртуальной машины.
 
+![](https://github.com/kostenkoda/2023_2024-network_programming-k34212-kostenko_d_a/blob/main/lab3/lab3-pics/CHRs.png)
 
+### 5. Сбор данных с CHR в NetBox
 
+Был написан playbook, позволяющий собрать серийный номер устройства и вносящий серийный номер в Netbox, на основе inventory-файла nb_inventory.yml.
 
-4.
+```
+- name: Get Serial Numbers To NetBox
+  hosts: device_roles_router
+  tasks:
+    - name: Get Serial Number
+      community.routeros.command:
+        commands:
+          - /system license print
+      register: license_print
+    - name: Get Name
+      community.routeros.command:
+        commands:
+          - /system identity print
+      register: identity_print
+    - name: Add Serial Number to Netbox
+      netbox_device:
+        netbox_url: https://158.160.48.189
+        netbox_token: токен
+        data:
+          name: "{{identity_print.stdout_lines[0][0].split(' ').1}}"
+          serial: "{{license_print.stdout_lines[0][0].split(' ').1}}"
+        state: present
+        validate_certs: False
+```
 
-5. 
+Выполняем playbook.
 
-**Вывод:**
+![](https://github.com/kostenkoda/2023_2024-network_programming-k34212-kostenko_d_a/blob/main/lab3/lab3-pics/playbook2.png)
+
+Проверяем данные о 2 CHR в NetBox - поле Serial Number заполнено.
+
+![](https://github.com/kostenkoda/2023_2024-network_programming-k34212-kostenko_d_a/blob/main/lab3/lab3-pics/nb_CHR1.png) 
+![](https://github.com/kostenkoda/2023_2024-network_programming-k34212-kostenko_d_a/blob/main/lab3/lab3-pics/nb_CHR2.png)
+
+## Вывод:
+
+при выполнении работы на виртуальной машине был поднят NetBox, в NetBox была внесена информация о 2 CHR. Были написаны playbook-и для настройки 2 CHR на основе данных из Netbox и сбора данных с CHR в NetBox. Были получены навыки по работе с NetBox и Ansible.
