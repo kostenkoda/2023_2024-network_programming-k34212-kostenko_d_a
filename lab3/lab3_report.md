@@ -148,7 +148,7 @@ sudo cp -v /opt/netbox/contrib/*.service /etc/systemd/system/
 sudo systemctl daemon-reload
 ```
 
-Запускаем сервисы netbox и проверяем их статус.
+Запускаем сервисы netbox и проверяем статус.
 
 ```
 sudo systemctl start netbox netbox-rq
@@ -183,7 +183,7 @@ sudo ln -s /etc/nginx/sites-available/netbox /etc/nginx/sites-enabled/netbox
 
 Для добавления устройств были добавлены сайт (физическое расположение устройства), роль, производитель и тип устройств.
 
-Далее была заполнена информация о двух CHR, добавлены их интерфейсы и ip-адреса. Для каждого CHR были заранее добавлены по еще одному интерфейсу и ip-адресу для выполнения 5 пункта работы.
+Далее была заполнена информация о двух CHR, добавлены их интерфейсы и ip-адреса. Для каждого CHR были заранее добавлены по еще одному интерфейсу Lo1 и ip-адресу для выполнения 4 пункта работы.
 
 ![](https://github.com/kostenkoda/2023_2024-network_programming-k34212-kostenko_d_a/blob/main/lab3/lab3-pics/nb_devices.png)
 
@@ -246,7 +246,7 @@ ansible-inventory -v --list -i netbox_inventory.yml > nb_inventory.yml
 
 ![](https://github.com/kostenkoda/2023_2024-network_programming-k34212-kostenko_d_a/blob/main/lab3/lab3-pics/playbook1.png)
 
-Проверяем изменения на 2 CHR. На рисунке можно увидеть, что изменились имена устройств и добавлен интерфейс с ip-адресом. Наверху также можно увидеть успешные пинги до виртуальной машины.
+Проверяем изменения на 2 CHR. На рисунке можно увидеть, что изменились имена устройств с Mikrotik на CHR1/2 и был добавлен интерфейс Lo1 с ip-адресом. Наверху также можно увидеть успешные пинги до виртуальной машины.
 
 ![](https://github.com/kostenkoda/2023_2024-network_programming-k34212-kostenko_d_a/blob/main/lab3/lab3-pics/CHRs.png)
 
