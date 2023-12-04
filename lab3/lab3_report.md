@@ -15,7 +15,7 @@ Lab: Lab3
 
 Date of create: 29.11.2023
 
-Date of finished: ?
+Date of finished: 03.12.2023
 
 ## Цель работы: 
 с помощью Ansible и Netbox собрать всю возможную информацию об устройствах и сохранить их в отдельном файле.
